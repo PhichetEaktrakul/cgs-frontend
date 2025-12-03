@@ -31,7 +31,7 @@ export default function Monitor({ refetchKey, prices }) {
   const switchOrderStatus = (status) => {
     if (!selectedTickets.length) return;
     apiAdmin
-      .post("/dashboard/order-switch", { pledgeIds: selectedTickets, status })
+      .post("admin/order-switch", { pledgeIds: selectedTickets, status })
       .then(() => {
         fetchTicket();
         toast.success(`เปลี่ยนสถานะเป็น ${status} เเล้ว!`);
@@ -44,7 +44,7 @@ export default function Monitor({ refetchKey, prices }) {
   // Fetch All Customer Pledge Ticket
   const fetchTicket = async () => {
     try {
-      const response = await apiAdmin.get("/dashboard/monitor/all");
+      const response = await apiAdmin.get("/admin/monitor/ticket/all");
       setData(response.data);
     } catch (error) {
       console.error("Fetch tickets failed:", error);

@@ -37,7 +37,7 @@ export default function History() {
   // Create new consignment
   const fetchConsign = async (customerId) => {
     try {
-      const { data } = await apiCust.get(`/consignment/history/${customerId}`);
+      const { data } = await apiCust.get(`/pledge/history/${customerId}`);
       setHistory(data);
     } catch (err) {
       console.log(err.response?.data || "Failed to fetch consignment history.");

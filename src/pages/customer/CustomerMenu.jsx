@@ -6,12 +6,15 @@ import { FormatDate, FormatNumber, GoldTypeText } from "../../utility/function";
 import Header from "../../components/customer/Header";
 import ModalTOS from "../../components/customer/ModalTOS";
 import { HiOutlineDocumentMinus } from "react-icons/hi2";
+import ModalExtendConsignment from "../../components/customer/consignment/ModalExtendConsignment";
+import toast from "react-hot-toast";
 
 export default function Menu() {
   const navigate = useNavigate();
   const location = useLocation();
   const token = new URLSearchParams(location.search).get("token");
   const [customer, setCustomer] = useState(null);
+  const [selectedData, setSelectedData] = useState(null);
   const [consignList, setConsignList] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -69,7 +72,7 @@ export default function Menu() {
   // Handle TOS agreement
   const handleAgreement = async () => {
     try {
-      await apiCust.post("/tos/add", {
+      await apiCust.post("/tos/accept", {
         customerId: customer.customerId,
         firstname: customer.firstname,
         lastname: customer.lastname,
@@ -90,12 +93,41 @@ export default function Menu() {
   // Fetch consignment list
   const fetchConsignList = async (customerId) => {
     try {
-      const { data } = await apiCust.get(`/consignment/history/${customerId}`);
+      const { data } = await apiCust.get(`/pledge/history/${customerId}`);
       setConsignList(data);
     } catch (err) {
       console.error("Error fetching consign list:", err);
     }
   };
+  //----------------------------------------------------------------------------------------
+
+  //----------------------------------------------------------------------------------------
+
+const handleConfirmExtend = async (payload) => {
+  try {
+    console.log("Sending payload:", payload);
+    await apiCust.post("/pledge/extend", payload);
+    toast.success("ทำรายการต่อสัญญาเรียบร้อย");
+    document.getElementById("extend_modal")?.close();
+  } catch (error) {
+    console.error("Extend failed:", error);
+    toast.error(
+      error.response?.data?.message || "ไม่สามารถทำรายการได้ กรุณาลองใหม่อีกครั้ง"
+    );
+  }
+};
+
+
+
+
+
+
+  //----------------------------------------------------------------------------------------
+  const handleSelectPledge = (data) => {
+    setSelectedData(data);
+    document.getElementById("extend_modal")?.showModal();
+  };
+
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
@@ -110,7 +142,7 @@ export default function Menu() {
   );
   //----------------------------------------------------------------------------------------
 
-  const activeConsignList = consignList.filter((item) =>
+  const activeConsignList = consignList?.filter((item) =>
     ["active", "redeempay"].includes(item.status)
   );
 
@@ -197,6 +229,18 @@ export default function Menu() {
                             </span>
                             <span>: {FormatDate(item.end_date)}</span>
                           </span>
+                          {item.is_extendable ? (
+                            <div className="col-span-4 items-center content-end justify-end flex mr-6">
+                              <button
+                                type="button"
+                                className="cursor-pointer border border-transparent bg-[#dabe96] hover:border hover:border-[#dabe96] hover:bg-white hover:text-[#dabe96] py-0.5 px-2 rounded text-[12px]"
+                                onClick={() => handleSelectPledge(item)}>
+                                ต่อสัญญา
+                              </button>
+                            </div>
+                          ) : (
+                            ""
+                          )}
                         </div>
                       ))}
                     </div>
@@ -240,6 +284,8 @@ export default function Menu() {
         }
       />
       <ModalTOS handleAgreement={handleAgreement} />
+
+      <ModalExtendConsignment selectedData={selectedData} handleConfirmExtend={handleConfirmExtend} />
     </>
   );
 }

@@ -1,12 +1,12 @@
 import axios from "axios";
-
-const apiUrl = import.meta.env.VITE_API_URL;
+import { urlConfig } from "./apiConfig.js";
+/* const apiUrl = `${window.location.origin}`; */
 
 // Customer API URL
-export const apiCust = axios.create({ baseURL: apiUrl });
+export const apiCust = axios.create({ baseURL: urlConfig.apiBase });
 
 // Admin API URL
-export const apiAdmin = axios.create({ baseURL: apiUrl });
+export const apiAdmin = axios.create({ baseURL: urlConfig.apiBase });
 
 const token = localStorage.getItem("token");
 if (token) {

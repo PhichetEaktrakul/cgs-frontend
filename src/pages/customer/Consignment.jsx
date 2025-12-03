@@ -5,6 +5,7 @@ import Header from "../../components/customer/Header";
 import ConsignmentBalance from "../../components/customer/consignment/ConsignmentBalance";
 import ConsignmentForm from "../../components/customer/consignment/ConsignmentForm";
 import ModalConsignment from "../../components/customer/consignment/ModalConsignment";
+import axios from "axios";
 
 export default function Consignment() {
   const customerId = localStorage.getItem("customerId");
@@ -33,14 +34,16 @@ export default function Consignment() {
     if (!customerId) return;
 
     try {
-      const [initRes, goldRes, goldAssnRes] = await Promise.all([
+      const [initRes, goldRes, goldAssnRes, goldGcapRes] = await Promise.all([
         apiCust.get(`/customer/initial/${customerId}`),
         apiCust.get(`/customer/outer/${customerId}/gold`),
-        apiCust.get("/gold-assn/latest"),
+        axios.get("http://localhost:8050/gold-assn/latest"),
+        axios.get("http://localhost:8050/gold-prices/latest"),
       ]);
 
       const setting = initRes.data;
       const gold = goldRes.data;
+      const goldGcap = goldGcapRes.data.gold99_sell;
       const goldAssn = goldAssnRes.data;
       const goldSell = parseInt(goldAssn.sellPrice.replace(/,/g, ""), 10);
 
@@ -51,7 +54,7 @@ export default function Consignment() {
       setTempValue((prev) => ({
         ...prev,
         customerId: customerId,
-        refPrice1: gold.ref_price2 ?? 69445,
+        refPrice1: goldGcap ?? 69445,
         refPrice2: goldSell ?? 67015,
         loanPercent: setting.loan_percent,
         interestRate: setting.interest_rate,
@@ -86,7 +89,7 @@ export default function Consignment() {
       transactionType: "ขายฝาก",
     };
     apiCust
-      .post("/consignment/create", transaction)
+      .post("/pledge/create", transaction)
       .then((res) => {
         /* console.log("Response:", res.data); */
         toast.success(`ทำรายการเลขที่ ${res.data} สำเร็จ!`);

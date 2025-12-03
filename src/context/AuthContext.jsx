@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   // Admin(user) login
   const login = async (username, password) => {
     try {
-      const res = await axios.post(`${apiUrl}/auth/login`, {
+      const res = await axios.post(`${apiUrl}/user/login`, {
         username,
         password,
       });

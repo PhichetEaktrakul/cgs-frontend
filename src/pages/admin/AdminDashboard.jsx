@@ -3,6 +3,7 @@ import { FaSortUp, FaSortDown } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router";
 import { apiAdmin } from "../../api/axiosInstance";
+import axios from "axios";
 import toast from "react-hot-toast";
 import Monitor from "../../components/admin/ticket-monitor/Monitor";
 import CustomerManager from "../../components/admin/customer-manager/CustomerManager";
@@ -55,8 +56,8 @@ export default function AdminDashboard() {
   //----------------------------------------------------------------------------------------
   // Fetch Gold RT Price From SignalR
   useEffect(() => {
-    apiAdmin
-      .get("/gold-prices/latest")
+    axios
+      .get("http://localhost:8050/gold-prices/latest")
       .then((res) => {
         if (res.data) {
           setPrices(res.data);
@@ -94,8 +95,8 @@ export default function AdminDashboard() {
           setPrices(newPrices);
 
           if (newPrices.gold99_buy > 0 && newPrices.gold96_buy > 0) {
-            apiAdmin
-              .post("/gold-prices", newPrices)
+            axios
+              .post("http://localhost:8050/gold-prices", newPrices)
               /* .then(() => console.log("✅ Gold price saved:", newPrices)) */
               .catch((err) => console.error("❌ Failed to save:", err));
           }
@@ -136,7 +137,7 @@ export default function AdminDashboard() {
   //----------------------------------------------------------------------------------------
   
   useEffect(() => {
-    apiAdmin.put("/dashboard/open-market")
+    apiAdmin.put("/admin/open-market")
       .then(res => console.log(res.data))
       .catch(err => console.error(err));
   }, []);
@@ -185,6 +186,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* ------------------------- Customer ------------------------- */}
+{/*         
         <input
           type="radio"
           name="my_tabs_3"
@@ -196,7 +198,7 @@ export default function AdminDashboard() {
         <div className="tab-content bg-white border-base-300 p-6">
           <CustomerManager refetchKey={activeTab === "Customers"} prices={prices} />
         </div>
-
+ */}
         {/* ------------------------- Manage ------------------------- */}
         <input
           type="radio"
@@ -209,7 +211,7 @@ export default function AdminDashboard() {
         <div className="tab-content bg-white border-base-300 p-6">
           <TicketManager refetchKey={activeTab === "TicketManager"} />
         </div>
-
+{/* 
         <input
           type="radio"
           name="my_tabs_3"
@@ -221,6 +223,7 @@ export default function AdminDashboard() {
         <div className="tab-content bg-white border-base-300 p-6">
           <UserManager refetchKey={activeTab === "UserManager"} />
         </div>
+         */}
       </div>
     </>
   );

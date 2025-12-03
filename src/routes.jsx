@@ -7,7 +7,6 @@ import Interest from "./pages/customer/Interest";
 import Redeem from "./pages/customer/Redeem";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import BoardcastPrice from "./pages/BoardcastPrice";
 import ProtectedLayout from "./components/common/ProtectedLayout";
 
 const AppRoutes = () => {
@@ -23,7 +22,6 @@ const AppRoutes = () => {
       <Route element={<ProtectedLayout />}>
         <Route path="/admin/dashboard/" element={<AdminDashboard />} />
       </Route>
-      <Route path="/boardcast" element={<BoardcastPrice />} />
     </Routes>
   );
 };
