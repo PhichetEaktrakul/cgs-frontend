@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiCust } from "../../api/axiosInstance";
+import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import Header from "../../components/customer/Header";
 import RedeemCard from "../../components/customer/redeem/RedeemCard";
@@ -7,6 +8,7 @@ import ModalRedeem from "../../components/customer/redeem/ModalRedeem";
 
 export default function Redeem() {
   const customerId = localStorage.getItem("customerId");
+  const navigate = useNavigate();
   const [redeemList, setRedeemList] = useState([]);
   const [selectedData, setSelectedData] = useState();
 
@@ -14,15 +16,17 @@ export default function Redeem() {
   // Select Target Redeem
   const handleSelectRed = (data) => {
     setSelectedData(data);
-    console.log("Selected Redeem Data:", data);
     document.getElementById("redeem_modal").showModal();
   };
   //----------------------------------------------------------------------------------------
 
+  //----------------------------------------------------------------------------------------
+  // Calculate Interest Pay
   const calculateInterestPay = (data) => {
     if (data.remain_num_pay === 0) return 0;
     return (data.remain_loan_amount * data.interest_rate) / 100;
   };
+  //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
   // Submit Redeem Transaction
@@ -30,7 +34,7 @@ export default function Redeem() {
     if (!selectedData) return;
 
     try {
-      await apiCust.post("/redeem/create", {
+      await apiCust.post("/api/redeem/create", {
         transactionId: selectedData.transaction_id,
         pledgeId: selectedData.pledge_id,
         principalPay: selectedData.remain_loan_amount,
@@ -39,9 +43,13 @@ export default function Redeem() {
 
       toast.success("ทำรายการไถ่ถอนสำเร็จ!");
       document.getElementById("redeem_modal").close();
-      fetchData();
-    } catch (error) {
-      console.error("Redeem error:", error);
+      navigate("/history", {
+        state: {
+          type: "ไถ่ถอน",
+        },
+      });
+    } catch (err) {
+      console.error("Redeem error:", err);
     }
   };
   //----------------------------------------------------------------------------------------
@@ -50,10 +58,10 @@ export default function Redeem() {
   // Fetch Redeemable List and History
   const fetchData = async () => {
     try {
-      const redeemRes = await apiCust.get(`/redeem/list/${customerId}`);
+      const redeemRes = await apiCust.get(`/api/redeem/list/${customerId}`);
       setRedeemList(redeemRes.data);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     }
   };
   //----------------------------------------------------------------------------------------

@@ -67,7 +67,7 @@ export default function AdminLogin() {
 
             <button
               type="submit"
-              className="mt-2 cursor-pointer w-full bg-[#c9b089] p-2 rounded-xl text-[#0e2353fc] font-semibold hover:bg-[#b79a73] transition">
+              className="mt-2 cursor-pointer w-full bg-[#c9b089] p-2 rounded-xl text-[#0e2e53fc] font-semibold hover:bg-[#b79a73] transition">
               Confirm
             </button>
             

@@ -24,6 +24,7 @@ export default function TicketExtend({ extendData, handleExtendUpdate }) {
     "วันที่ทำรายการ",
   ];
   const filteredData = extendData.filter((item) => item.status === activeTab);
+  const toSqlDate = (date) => new Date(date).toISOString().slice(0, 19);
   return (
     <>
       <fieldset className="fieldset w-[1300px] border border-sky-900 shadow-md p-3 rounded-md row-span-1 mt-3">
@@ -102,12 +103,21 @@ export default function TicketExtend({ extendData, handleExtendUpdate }) {
                           <button
                             className="bg-green-600 text-white w-[50px] p-1 rounded-lg cursor-pointer"
                             onClick={() =>
-                              handleExtendUpdate(
-
-
-
-                              //code here
-                              )
+                              handleExtendUpdate({
+                                pledgeId: item.pledge_id,
+                                transactionId: item.transaction_id,
+                                customerId: item.customer_id,
+                                startDate: toSqlDate(item.start_date),
+                                newEndDate: toSqlDate(item.new_end_date),
+                                interestRate: item.interest_rate,
+                                loanPercent: item.loan_percent,
+                                newLoanAmount: item.new_loan_amount,
+                                goldType: item.gold_type,
+                                refPrice: item.ref_price,
+                                weight: item.weight,
+                                extend: item.extend,
+                                method: "approve",
+                              })
                             }>
                             อนุมัติ
                           </button>

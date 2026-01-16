@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiCust } from "../../api/axiosInstance";
+import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import Header from "../../components/customer/Header";
 import InterestCard from "../../components/customer/interest/InterestCard";
@@ -7,6 +8,7 @@ import ModalInterest from "../../components/customer/interest/ModalInterest";
 
 export default function Interest() {
   const customerId = localStorage.getItem("customerId");
+  const navigate = useNavigate();
   const [intList, setIntList] = useState([]);
   const [selectedData, setSelectedData] = useState(null);
   const [isReduce, setIsReduce] = useState(false);
@@ -39,9 +41,9 @@ export default function Interest() {
       return setError("errNumber");
     if (selectedData.old_loan_amount - tempValue.pay_loan === 0)
       return setError("errRedeem");
-console.log(selectedData.interest_id, selectedData.pledge_id, tempValue.pay_interest, tempValue.pay_loan);
+
     try {
-      await apiCust.post("/interest/create", {
+      await apiCust.post("/api/interest/create", {
         interestId: selectedData.interest_id,
         pledgeId: selectedData.pledge_id,
         payInterest: tempValue.pay_interest,
@@ -49,9 +51,13 @@ console.log(selectedData.interest_id, selectedData.pledge_id, tempValue.pay_inte
       });
       toast.success("ทำรายการต่อดอกสำเร็จ!");
       document.getElementById("interest_modal").close();
-      fetchData();
-    } catch (error) {
-      console.error(error);
+      navigate("/history", {
+        state: {
+          type: "ต่อดอก",
+        },
+      });
+    } catch (err) {
+      console.error(err);
     }
   };
   //----------------------------------------------------------------------------------------
@@ -60,11 +66,11 @@ console.log(selectedData.interest_id, selectedData.pledge_id, tempValue.pay_inte
   // Fetch Customer Gold and History
   const fetchData = async () => {
     try {
-      const intRes = await apiCust.get(`/interest/payable/${customerId}`);
+      const intRes = await apiCust.get(`/api/interest/payable/${customerId}`);
 
       setIntList(intRes.data);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     }
   };
   //----------------------------------------------------------------------------------------

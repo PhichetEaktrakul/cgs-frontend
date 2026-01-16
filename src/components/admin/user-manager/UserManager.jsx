@@ -17,6 +17,7 @@ export default function UserManager() {
     loanPercent: "",
     interestRate: "",
     numPay: "",
+    extendNum:""
   });
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -24,7 +25,7 @@ export default function UserManager() {
   // Fetch Users
   const fetchUsers = async () => {
     try {
-      const res = await apiAdmin.get("/dashboard/user");
+      const res = await apiAdmin.get("/api/user/all");
       if (res.status === 200) {
         setUsers(res.data);
       } else {
@@ -49,7 +50,7 @@ export default function UserManager() {
       return;
     }
     try {
-      await apiAdmin.post("/auth/register", {
+      await apiAdmin.post("/api/user/register", {
         username: form.username,
         password: form.password,
         role: form.role,
@@ -66,7 +67,7 @@ export default function UserManager() {
   const deleteUser = async (id) => {
     if (!window.confirm("คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้?")) return;
     try {
-      await apiAdmin.delete(`/dashboard/user/${id}`);
+      await apiAdmin.delete(`/api/user/${id}`);
       toast.success("ลบผู้ใช้แล้ว");
       fetchUsers();
     } catch (err) {
@@ -83,7 +84,7 @@ export default function UserManager() {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const res = await apiAdmin.get("/dashboard/config");
+        const res = await apiAdmin.get("/api/admin/config/initial");
         if (res.data.length > 0) {
           const cfg = res.data[0];
           setConfig({
@@ -91,6 +92,7 @@ export default function UserManager() {
             loanPercent: cfg.loan_percent,
             interestRate: cfg.interest_rate,
             numPay: cfg.num_pay,
+            extendNum: cfg.extend_num_pay
           });
         }
       } catch (err) {
@@ -115,10 +117,11 @@ export default function UserManager() {
 
     setUpdating(true);
     try {
-      const res = await apiAdmin.put("/dashboard/config", {
+      const res = await apiAdmin.put("/api/admin/config/initial", {
         loanPercent: parseFloat(config.loanPercent),
         interestRate: parseFloat(config.interestRate),
         numPay: parseInt(config.numPay),
+        extendNum: parseInt(config.extendNum)
       });
       toast.success(`อัปเดตค่าเริ่มต้นสำเร็จ!`);
     } catch (err) {
@@ -240,7 +243,7 @@ export default function UserManager() {
         </fieldset>
       </div>
 
-      <fieldset className="fieldset border border-sky-900 shadow-md p-3 rounded-md overflow-auto row-span-1 mb-3 max-w-[1500px]">
+      <fieldset className="fieldset border border-sky-900 shadow-md px-3 py-5 rounded-md overflow-auto row-span-1 mb-3 max-w-[1500px]">
         <legend className="fieldset-legend text-2xl text-sky-900">
           ตั้งค่าเริ่มต้น
         </legend>
@@ -280,7 +283,7 @@ export default function UserManager() {
           </div>
 
           {/* จำนวนงวด */}
-          <div className="flex items-center mx-3 mb-2">
+          <div className="flex items-center mx-3 relative">
             <p className="w-[90px] mr-1">จำนวนงวด</p>
             <input
               type="number"
@@ -291,8 +294,21 @@ export default function UserManager() {
             />
           </div>
 
+          <div className="flex items-center mx-3 relative">
+            <p className="w-[90px] mr-1">เวลาขยายสัญญา</p>
+            <div className="relative">
+              <input
+                type="text"
+                name="extendNum"
+                value={config.extendNum}
+                onChange={handleConfigChange}
+                className="bg-amber-50 border border-sky-700 rounded px-2 w-[100px] text-lg pr-6"
+              />
+            </div>
+          </div>
+
           {/* ปุ่มยืนยัน */}
-          <div className="flex items-center mx-3 mb-2">
+          <div className="flex items-center mx-3 relative">
             <button
               onClick={handleUpdate}
               disabled={updating}

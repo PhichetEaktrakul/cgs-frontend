@@ -9,7 +9,7 @@ import Monitor from "../../components/admin/ticket-monitor/Monitor";
 import CustomerManager from "../../components/admin/customer-manager/CustomerManager";
 import TicketManager from "../../components/admin/ticket-manager/TicketManager";
 import UserManager from "../../components/admin/user-manager/UserManager";
-
+import { apiPrice } from "../../api/axiosInstance";
 export default function AdminDashboard() {
   const { admin, logout } = useAuth();
   const navigate = useNavigate();
@@ -56,8 +56,8 @@ export default function AdminDashboard() {
   //----------------------------------------------------------------------------------------
   // Fetch Gold RT Price From SignalR
   useEffect(() => {
-    axios
-      .get("http://localhost:8050/gold-prices/latest")
+    apiPrice
+      .get("/gprice/gold-gcap/latest")
       .then((res) => {
         if (res.data) {
           setPrices(res.data);
@@ -93,16 +93,8 @@ export default function AdminDashboard() {
             old_gold96_sell: parsePrice(old_gold96_sell),
           };
           setPrices(newPrices);
-
-          if (newPrices.gold99_buy > 0 && newPrices.gold96_buy > 0) {
-            axios
-              .post("http://localhost:8050/gold-prices", newPrices)
-              /* .then(() => console.log("✅ Gold price saved:", newPrices)) */
-              .catch((err) => console.error("❌ Failed to save:", err));
-          }
         };
 
-        /* window.$.connection.hub.url = "https://uatg266.gcaponline.com/signalr"; */
         window.$.connection.hub.url = "https://g266.gcaponline.com/signalr";
         window.$.connection.hub
           .start()
@@ -137,7 +129,7 @@ export default function AdminDashboard() {
   //----------------------------------------------------------------------------------------
   
   useEffect(() => {
-    apiAdmin.put("/admin/open-market")
+    apiAdmin.put("/api/admin/open-market")
       .then(res => console.log(res.data))
       .catch(err => console.error(err));
   }, []);
@@ -211,7 +203,7 @@ export default function AdminDashboard() {
         <div className="tab-content bg-white border-base-300 p-6">
           <TicketManager refetchKey={activeTab === "TicketManager"} />
         </div>
-{/* 
+
         <input
           type="radio"
           name="my_tabs_3"
@@ -223,7 +215,7 @@ export default function AdminDashboard() {
         <div className="tab-content bg-white border-base-300 p-6">
           <UserManager refetchKey={activeTab === "UserManager"} />
         </div>
-         */}
+        
       </div>
     </>
   );

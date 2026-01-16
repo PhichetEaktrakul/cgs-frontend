@@ -1,9 +1,7 @@
 import {createContext, useContext, useState, useEffect, useCallback} from "react";
 import { useNavigate } from "react-router";
-import { apiAdmin } from "../api/axiosInstance";
-import axios from "axios";
+import { apiCust, apiAdmin } from "../api/axiosInstance";
 import toast from "react-hot-toast";
-
 //----------------------------------------------------------------------------------------
 // Authentication Context For Admin
 const AuthContext = createContext();
@@ -12,13 +10,13 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [admin, setAdmin] = useState(localStorage.getItem("admin") || null);
-  const apiUrl = import.meta.env.VITE_API_URL;
+
   const navigate = useNavigate();
 
   // Admin(user) login
   const login = async (username, password) => {
     try {
-      const res = await axios.post(`${apiUrl}/user/login`, {
+      const res = await apiCust.post(`/api/user/login`, {
         username,
         password,
       });

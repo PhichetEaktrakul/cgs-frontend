@@ -65,8 +65,8 @@ export default function TicketManager({ refetchKey }) {
       method === "approve"
         ? `อนุมัติรายการขายฝาก ID ${pledgeId} เเล้ว!`
         : `ไม่อนุมัติรายการขายฝาก ID ${pledgeId} เเล้ว!`;
-    updateStatus("/pledge/approve/status", payload, msg, () =>
-      fetchData("/pledge/history/all", setPledgeData)
+    updateStatus("/api/pledge/approve/status", payload, msg, () =>
+      fetchData("/api/pledge/history/all", setPledgeData)
     );
   };
   //----------------------------------------------------------------------------------------
@@ -84,20 +84,17 @@ export default function TicketManager({ refetchKey }) {
     intRate,
     method
   ) => {
-    const formattedDueDate = new Date(dueDate)
-      .toISOString()
-      .slice(0, 19)
-      .replace("T", " ");
-    const formattedEndDate = new Date(endDate)
-      .toISOString()
-      .slice(0, 19)
-      .replace("T", " ");
+console.log(dueDate, endDate);
+    // const formattedDueDate = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Bangkok", hour12: false }).format(new Date(dueDate));
+    // const formattedEndDate = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Bangkok", hour12: false }).format(new Date(endDate));
+     const newDue = new Date(dueDate).toLocaleString("sv-SE").replace(" ", "T")
+     const newEnd = new Date(endDate).toLocaleString("sv-SE").replace(" ", "T")
     const payload = {
       interestId,
       transactionId,
       pledgeId,
-      dueDate: formattedDueDate,
-      endDate: formattedEndDate,
+      dueDate:newDue ,
+      endDate:newEnd ,
       interestAmount,
       loanAmount,
       intRate,
@@ -109,8 +106,8 @@ export default function TicketManager({ refetchKey }) {
       method === "approve"
         ? `อนุมัติรายการต่อดอก ID ${interestId} เเล้ว!`
         : `ไม่อนุมัติรายการต่อดอก ID ${interestId} เเล้ว!`;
-    updateStatus("/interest/approve/status", payload, msg, () =>
-      fetchData("/interest/history/all", setInterestData)
+    updateStatus("/api/interest/approve/status", payload, msg, () =>
+      fetchData("/api/interest/history/all", setInterestData)
     );
   };
   //----------------------------------------------------------------------------------------
@@ -127,59 +124,77 @@ export default function TicketManager({ refetchKey }) {
     custId,
     method
   ) => {
-    const payload = { transactionId, pledgeId, goldType, intPaid, prinPaid, weight, custId, method };
+    const payload = {
+      transactionId,
+      pledgeId,
+      goldType,
+      intPaid,
+      prinPaid,
+      weight,
+      custId,
+      method,
+    };
     const msg = method === "approve" ? "อนุมัติเรียบร้อย" : "ปฏิเสธเรียบร้อย";
-    updateStatus("/redeem/approve/status", payload, msg, () => {
-      fetchData("/redeem/history/all", setRedeemData);
-      fetchData("/pledge/history/all", setPledgeData);
+    updateStatus("/api/redeem/approve/status", payload, msg, () => {
+      fetchData("/api/redeem/history/all", setRedeemData);
+      fetchData("/api/pledge/history/all", setPledgeData);
     });
   };
   //----------------------------------------------------------------------------------------
 
-
-
-const handleExtendUpdate = (pledgeId, method, newEndDate, extend) => {
-  const cleanDate = (date) => {
-    if (!date) return null;
-
-    // If it's a Date object, format to ISO string manually
-    if (date instanceof Date) {
-      return date.toISOString().split(/[+Z]/)[0];
-    }
-
-    // If it's a string, strip timezone part
-    return date.split(/[+Z]/)[0];
-  };
-
-  const payload = {
+  const handleExtendUpdate = async ({
     pledgeId,
-    method,
-    newEndDate: cleanDate(newEndDate),
+    transactionId,
+    customerId,
+    startDate,
+    newEndDate,
+    interestRate,
+    loanPercent,
+    newLoanAmount,
+    goldType,
+    refPrice,
+    weight,
     extend,
+    method, // "approve" or "reject"
+  }) => {
+    try {
+      const payload = {
+        pledgeId,
+        transactionId,
+        customerId,
+        startDate, // must be "yyyy-MM-ddTHH:mm:ss"
+        newEndDate, // must be "yyyy-MM-ddTHH:mm:ss"
+        interestRate,
+        loanPercent,
+        newLoanAmount,
+        goldType,
+        refPrice,
+        weight,
+        extend,
+        method,
+      };
+
+      console.log("Sending extension request:", payload);
+
+      const msg = method === "approve" ? "อนุมัติเรียบร้อย" : "ปฏิเสธเรียบร้อย";
+      updateStatus("/api/pledge/extend/approve/status", payload, msg, () =>
+        fetchData("/api/pledge/extend/all", setExtendData)
+      );
+
+    } catch (err) {
+      console.error("Extension API failed:", err);
+      toast.error("เกิดข้อผิดพลาดในการทำรายการ");
+    }
   };
-
-  console.log("Payload sent to API:", payload);
-
-  const msg = method === "approve" ? "อนุมัติเรียบร้อย" : "ปฏิเสธเรียบร้อย";
-
-  updateStatus("/pledge/approve/extend", payload, msg, () => {
-    fetchData("/pledge/extend/all", setExtendData);
-  });
-};
-
-
-
-
-
 
   //----------------------------------------------------------------------------------------
   // Refetch
   useEffect(() => {
     if (refetchKey) {
-      fetchData("/pledge/history/all", setPledgeData);
-      fetchData("/interest/history/all", setInterestData);
-      fetchData("/redeem/history/all", setRedeemData);
-       fetchData("/pledge/extend/all", setExtendData);
+      fetchData("/api/pledge/history/all", setPledgeData);
+      fetchData("/api/interest/history/all", setInterestData);
+      fetchData("/api/redeem/history/all", setRedeemData);
+      fetchData("/api/pledge/extend/all", setExtendData);
     }
   }, [refetchKey]);
   //----------------------------------------------------------------------------------------

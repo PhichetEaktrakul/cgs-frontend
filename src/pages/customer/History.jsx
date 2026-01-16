@@ -1,53 +1,33 @@
 import { useState, useEffect } from "react";
 import { apiCust } from "../../api/axiosInstance";
+import { useLocation } from "react-router";
 import Header from "../../components/customer/Header";
-import ConsignmentHistory from "../../components/customer/consignment/ConsignmentHistory";
-import InterestHistory from "../../components/customer/interest/InterestHistory";
-import RedeemHistory from "../../components/customer/redeem/RedeemHistory";
+import PledgeHistory from "../../components/customer/History/PledgeHistory";
+import InterestHistory from "../../components/customer/History/InterestHistory";
+import RedeemHistory from "../../components/customer/History/RedeemHistory";
 
 export default function History() {
+  const location = useLocation();
+  const navigateState = location.state?.type;
   const customerId = localStorage.getItem("customerId");
-  const [history, setHistory] = useState([]);
-  const [activeTab, setActiveTab] = useState("pending");
   const [selectedType, setSelectedType] = useState("ขายฝาก");
-  const tabs1 = [
-    { key: "pending", label: "รออนุมัติ" },
-    { key: "active", label: "สำเร็จ" },
-    { key: "reject", label: "ไม่สำเร็จ" },
-    { key: "redeem", label: "ไถ่ถอน" },
-    { key: "expire", label: "เกินกำหนด" },
-  ];
-  const tabs2 = [
-    { key: "pending", label: "รออนุมัติ" },
-    { key: "paid", label: "สำเร็จ" },
-    { key: "reject", label: "ไม่สำเร็จ" },
-  ];
-  const tabs3 = [
-    { key: "pending", label: "รออนุมัติ" },
-    { key: "approve", label: "สำเร็จ" },
-    { key: "reject", label: "ไม่สำเร็จ" },
-  ];
-
-  // Load default History data
-  useEffect(() => {
-    fetchConsign(customerId);
-  }, [customerId]);
+  const [filteredData, setFilteredData] = useState([]);
 
   //----------------------------------------------------------------------------------------
-  // Create new consignment
-  const fetchConsign = async (customerId) => {
+  // Fetch history data
+  const fetchPledge = async (customerId) => {
     try {
-      const { data } = await apiCust.get(`/pledge/history/${customerId}`);
-      setHistory(data);
+      const { data } = await apiCust.get(`/api/pledge/history/${customerId}`);
+      setFilteredData(data);
     } catch (err) {
-      console.log(err.response?.data || "Failed to fetch consignment history.");
+      console.log(err.response?.data || "Failed to fetch Pledge history.");
     }
   };
 
   const fetchInterest = async (customerId) => {
     try {
-      const { data } = await apiCust.get(`/interest/history/${customerId}`);
-      setHistory(data);
+      const { data } = await apiCust.get(`/api/interest/history/${customerId}`);
+      setFilteredData(data);
     } catch (err) {
       console.log(err.response?.data || "Failed to fetch Interest history.");
     }
@@ -55,8 +35,8 @@ export default function History() {
 
   const fetchRedeem = async (customerId) => {
     try {
-      const { data } = await apiCust.get(`/redeem/history/${customerId}`);
-      setHistory(data);
+      const { data } = await apiCust.get(`/api/redeem/history/${customerId}`);
+      setFilteredData(data);
     } catch (err) {
       console.log(err.response?.data || "Failed to fetch Redeem history.");
     }
@@ -64,72 +44,69 @@ export default function History() {
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
-  // Handle type change
-  const handleTypeChange = (value) => {
-    setSelectedType(value);
-    setHistory([]);
-    setActiveTab("pending");
+  // Handle menu change
+  const loadByType = (type) => {
+    setSelectedType(type);
+    setFilteredData([]);
 
-    if (value === "ขายฝาก") fetchConsign(customerId);
-    if (value === "ต่อดอก") fetchInterest(customerId);
-    if (value === "ไถ่ถอน") fetchRedeem(customerId);
+    if (type === "ขายฝาก") fetchPledge(customerId);
+    if (type === "ต่อดอก") fetchInterest(customerId);
+    if (type === "ไถ่ถอน") fetchRedeem(customerId);
   };
   //----------------------------------------------------------------------------------------
+  
+  //----------------------------------------------------------------------------------------
+  // Load initial history data
+  useEffect(() => {
+    loadByType(navigateState || "ขายฝาก");
+  }, [customerId, navigateState]);
+  //----------------------------------------------------------------------------------------
 
-  const filteredData = history.filter((item) => item.status === activeTab);
+  const menuTabs = [
+    { key: "ขายฝาก", label: "ขายฝาก" },
+    { key: "ต่อดอก", label: "ต่อดอก" },
+    { key: "ไถ่ถอน", label: "ไถ่ถอน" },
+  ];
 
   return (
     <Header
       bottom={
         <>
-          <p className="text-center text-2xl">ตรวจสอบสถานะ/ประวัติ</p>
-          {/* ---------------------- Type Selector ---------------------- */}
-          <div className="flex items-center gap-2 mt-5">
-            <p>ดูรายการ</p>
-            <select
-              value={selectedType}
-              onChange={(e) => handleTypeChange(e.target.value)}
-              className="select select-sm bg-yellow-50">
-              <option>ขายฝาก</option>
-              <option>ต่อดอก</option>
-              <option>ไถ่ถอน</option>
-            </select>
-          </div>
-
-          <hr className="text-gray-400 my-5" />
-
-          {/* ---------------------- Tabs ---------------------- */}
+          <p className="text-center text-2xl">ตรวจสอบประวัติรายการ</p>
           <div className="flex justify-center mt-2">
-            <ul className="menu menu-horizontal bg-base-200 p-0 rounded-md border border-[#dabe96] text-[12px]">
-              {(selectedType === "ขายฝาก" ? tabs1
-                : selectedType === "ต่อดอก" ? tabs2
-                : tabs3
-              ).map((tab) => (
+            <ul className="flex items-center gap-2 bg-gray-200 p-1.5 rounded-full text-[12px]">
+              {menuTabs.map((tab) => (
                 <li key={tab.key}>
-                  <a
-                    className={activeTab === tab.key ? "bg-[#dabe96]" : ""}
-                    onClick={() => setActiveTab(tab.key)}>
+                  <button
+                    type="button"
+                    className={
+                      selectedType === tab.key
+                        ? "bg-[#2a53b3fc] text-white px-3 py-1.5 rounded-full"
+                        : "text-gray-700 px-3 py-1 rounded-full"
+                    }
+                    onClick={() => loadByType(tab.key)}
+                  >
                     {tab.label}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* ---------------------- Consignment ---------------------- */}
+          {/* ---------------------- Pledge List ------------------------ */}
           {selectedType === "ขายฝาก" && (
-            <ConsignmentHistory filteredData={filteredData} />
-          )}
+            <PledgeHistory filteredData={filteredData} />
+          )} 
 
-          {/* ---------------------- Interest ---------------------- */}
+          {/* ---------------------- Interest List ---------------------- */}
           {selectedType === "ต่อดอก" && (
             <InterestHistory filteredData={filteredData} />
           )}
 
-          {/* ---------------------- Redeem ---------------------- */}
+          {/* ---------------------- Redeem List ------------------------ */}
           {selectedType === "ไถ่ถอน" && (
             <RedeemHistory filteredData={filteredData} />
-          )}
+          )} 
         </>
       }
     />

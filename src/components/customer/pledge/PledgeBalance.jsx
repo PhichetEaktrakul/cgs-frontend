@@ -1,11 +1,11 @@
 import { AiOutlineGold } from "react-icons/ai";
 
-export default function ConsignmentBalance({ tempValue }) {
+export default function PledgeBalance({ tempValue }) {
   return (
     <>
       <div className="grid grid-cols-2 grid-rows-1">
         <div className="p-3">
-          <div className="text-[#dabe96] text-lg mb-1">
+          <div className="text-white mb-1">
             <p>ยอดทองคงเหลือ</p>
             <p>(99.99%)</p>
           </div>
@@ -18,7 +18,7 @@ export default function ConsignmentBalance({ tempValue }) {
           </div>
         </div>
         <div className="p-3">
-          <div className="text-[#dabe96] text-lg mb-1">
+          <div className="text-white mb-1">
             <p>ยอดทองคงเหลือ</p>
             <p>(96.50%)</p>
           </div>

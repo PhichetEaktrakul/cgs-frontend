@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { apiCust } from "../../api/axiosInstance";
-import { GiGoldBar } from "react-icons/gi";
 import { FormatDate, FormatNumber, GoldTypeText } from "../../utility/function";
 import Header from "../../components/customer/Header";
-import ModalTOS from "../../components/customer/ModalTOS";
+import ModalTOS from "../../components/customer/menu/ModalTOS";
+import ModalExtendPledge from "../../components/customer/menu/ModalExtendPledge";
 import { HiOutlineDocumentMinus } from "react-icons/hi2";
-import ModalExtendConsignment from "../../components/customer/consignment/ModalExtendConsignment";
+import { AiOutlineGold } from "react-icons/ai";
+import { CiWarning } from "react-icons/ci";
 import toast from "react-hot-toast";
 
 export default function Menu() {
@@ -15,7 +16,7 @@ export default function Menu() {
   const token = new URLSearchParams(location.search).get("token");
   const [customer, setCustomer] = useState(null);
   const [selectedData, setSelectedData] = useState(null);
-  const [consignList, setConsignList] = useState([]);
+  const [pledgeList, setPledgeList] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -30,11 +31,11 @@ export default function Menu() {
     const fetchCustomer = async () => {
       try {
         setLoading(true);
-        const { data } = await apiCust.get("/token/decode", {
+        const { data } = await apiCust.get("/api/token/decode", {
           params: { token },
         });
         setCustomer(data);
-        fetchConsignList(data.customerId);
+        fetchPledgeList(data.customerId);
         localStorage.setItem("customerId", data.customerId);
       } catch (err) {
         setError(err.response?.data || "Failed to fetch customer data.");
@@ -54,13 +55,13 @@ export default function Menu() {
 
     const checkTos = async () => {
       try {
-        const { data } = await apiCust.get(`/tos/check/${customer.customerId}`);
+        const { data } = await apiCust.get(`/api/tos/check/${customer.customerId}`);
         if (!data) {
           setError("กรุณากดยอมรับข้อกำหนดการใช้บริการ");
           document.getElementById("tos_modal")?.showModal();
         }
       } catch (err) {
-        console.error("เกิดข้อผิดพลาด:", err);
+        console.error("Error check if customer accepted TOS:", err);
       }
     };
 
@@ -72,7 +73,7 @@ export default function Menu() {
   // Handle TOS agreement
   const handleAgreement = async () => {
     try {
-      await apiCust.post("/tos/accept", {
+      await apiCust.post("/api/tos/accept", {
         customerId: customer.customerId,
         firstname: customer.firstname,
         lastname: customer.lastname,
@@ -81,7 +82,7 @@ export default function Menu() {
         address: customer.address,
       });
       setError("");
-      fetchConsignList(customer.customerId);
+      fetchPledgeList(customer.customerId);
       document.getElementById("tos_modal")?.close();
     } catch (err) {
       console.error("Error adding TOS:", err);
@@ -90,59 +91,52 @@ export default function Menu() {
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
-  // Fetch consignment list
-  const fetchConsignList = async (customerId) => {
+  // Fetch pledge list
+  const fetchPledgeList = async (customerId) => {
     try {
-      const { data } = await apiCust.get(`/pledge/history/${customerId}`);
-      setConsignList(data);
+      const { data } = await apiCust.get(`/api/pledge/history/${customerId}`);
+      setPledgeList(data);
     } catch (err) {
-      console.error("Error fetching consign list:", err);
+      console.error("Error fetching pledge list:", err);
     }
   };
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
-
-const handleConfirmExtend = async (payload) => {
-  try {
-    console.log("Sending payload:", payload);
-    await apiCust.post("/pledge/extend", payload);
-    toast.success("ทำรายการต่อสัญญาเรียบร้อย");
-    document.getElementById("extend_modal")?.close();
-  } catch (error) {
-    console.error("Extend failed:", error);
-    toast.error(
-      error.response?.data?.message || "ไม่สามารถทำรายการได้ กรุณาลองใหม่อีกครั้ง"
-    );
-  }
-};
-
-
-
-
-
+  // Handle pledge extend confirmation
+  const handleConfirmExtend = async (payload) => {
+    try {
+      await apiCust.post("/api/pledge/extend", payload);
+      toast.success("ทำรายการต่อสัญญาเรียบร้อย");
+      document.getElementById("extend_modal")?.close();
+      fetchPledgeList(customer?.customerId);
+    } catch (err) {
+      console.error("Error pledge extend:", err);
+    }
+  };
+  //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
+  // Select pledge that want to extend
   const handleSelectPledge = (data) => {
     setSelectedData(data);
     document.getElementById("extend_modal")?.showModal();
   };
-
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
   // Menu card component
   const MenuCard = ({ onClick, text }) => (
     <div
-      className="border border-[#dabe96] rounded-lg flex p-3 bg-linear-to-r from-[#dabe96] to-[#f8e0be] cursor-pointer"
+      className="border-3 border-slate-400 rounded-full flex p-3 bg-slate-50 cursor-pointer"
       onClick={onClick}>
-      <GiGoldBar className="mr-2 text-2xl text-[#ac8e65]" />
+      <AiOutlineGold className="mr-3 text-2xl text-gray-600" />
       <span>{text}</span>
     </div>
   );
   //----------------------------------------------------------------------------------------
 
-  const activeConsignList = consignList?.filter((item) =>
+  const activePledgeList = pledgeList?.filter((item) =>
     ["active", "redeempay"].includes(item.status)
   );
 
@@ -151,29 +145,20 @@ const handleConfirmExtend = async (payload) => {
       <Header
         bottom={
           <>
-            {loading && (
-              <p className="text-gray-400 text-center text-lg">Loading...</p>
-            )}
-            {error && (
-              <p className="text-gray-400 text-center text-lg">{error}</p>
-            )}
+            {loading && ( <p className="text-slate-400 text-center text-lg">Loading...</p> )}
+            {error && ( <div className="text-slate-400 text-center text-lg h-[60vh] content-center"><CiWarning className="m-auto text-8xl"/><p>{error}</p></div> )}
             {!error && customer && (
               <div>
                 {/* ---------- Active List ---------- */}
-                {activeConsignList.length > 0 ? (
+                {activePledgeList.length > 0 ? (
                   <>
-                    <p className="text-xl mt-4">
-                      รายการขายฝาก : {activeConsignList.length} รายการ
-                    </p>
-
-                    <div className="h-[500px] overflow-x-auto">
-                      {activeConsignList.map((item) => (
+                    <p className="text-xl mt-4">รายการขายฝากของฉัน : {activePledgeList.length} รายการ</p>
+                    <div className="h-[56vh] overflow-auto">
+                      {activePledgeList.map((item) => (
                         <div
                           key={item.pledge_id}
-                          className="grid grid-cols-[30%_20%_30%_20%] gap-y-1 border border-[#1748b1] rounded-lg my-3 p-3 text-[12px]">
-                          <p className="col-span-4 font-bold">
-                            เลขที่สัญญา : {item.pledge_id}
-                          </p>
+                          className="grid grid-cols-[30%_20%_25%_25%] gap-y-1 border border-[#17b686fc] rounded-2xl my-3 p-3 text-[12px]">
+                          <p className="col-span-4 font-bold">เลขที่สัญญา : {item.pledge_id}</p>
 
                           <span className="contents">
                             <span className="text-center pr-1">ประเภททอง</span>
@@ -196,44 +181,35 @@ const handleConfirmExtend = async (payload) => {
                           </span>
 
                           <span className="contents">
-                            <span className="text-center pr-1">
-                              วงเงินที่ได้
-                            </span>
-                            <span>: {FormatNumber(item.loan_amount)}</span>
-                          </span>
-
-                          <span className="contents">
-                            <span className="text-center pr-1">
-                              ราคาอ้างอิง
-                            </span>
-                            <span>: {item.ref_price.toLocaleString()}</span>
-                          </span>
-
-                          <span className="contents">
-                            <span className="text-center pr-1">
-                              อัตราดอกเบี้ย
-                            </span>
+                            <span className="text-center pr-1">อัตราดอกเบี้ย</span>
                             <span>: {item.interest_rate}%</span>
                           </span>
 
                           <span className="contents">
-                            <span className="text-center pr-1">
-                              วันเริ่มต้นสัญญา
-                            </span>
+                            <span className="text-center pr-1">ราคาอ้างอิง</span>
+                            <span>: {item.ref_price.toLocaleString()}</span>
+                          </span>
+
+                          <span className="contents">
+                            <span className="text-center pr-1">วงเงินที่ได้</span>
+                            <span>: {FormatNumber(item.loan_amount)}</span>
+                          </span>
+
+                          <span className="contents">
+                            <span className="text-center pr-1">วันเริ่มต้นสัญญา</span>
                             <span>: {FormatDate(item.start_date)}</span>
                           </span>
 
                           <span className="contents">
-                            <span className="text-center pr-1">
-                              วันสิ้นสุดสัญญา
-                            </span>
+                            <span className="text-center pr-1">วันสิ้นสุดสัญญา</span>
                             <span>: {FormatDate(item.end_date)}</span>
                           </span>
+
                           {item.is_extendable ? (
                             <div className="col-span-4 items-center content-end justify-end flex mr-6">
                               <button
                                 type="button"
-                                className="cursor-pointer border border-transparent bg-[#dabe96] hover:border hover:border-[#dabe96] hover:bg-white hover:text-[#dabe96] py-0.5 px-2 rounded text-[12px]"
+                                className="cursor-pointer border border-transparent bg-[#17b686fc] text-white hover:border hover:border-[#17b686fc] hover:bg-white hover:text-[#1bd19afc] py-0.5 px-2 rounded-full text-[12px]"
                                 onClick={() => handleSelectPledge(item)}>
                                 ต่อสัญญา
                               </button>
@@ -247,12 +223,15 @@ const handleConfirmExtend = async (payload) => {
                   </>
                 ) : (
                   <>
-                    <p className="text-xl mt-4">
-                      รายการขายฝาก : {activeConsignList.length} รายการ
-                    </p>
-                    <div className="items-center justify-center flex text-gray-200 text-6xl my-10">
-                      <HiOutlineDocumentMinus />
-                    </div>
+                    <div className="h-[59vh]">
+                      <p className="text-xl mt-4">
+                        รายการขายฝากของฉัน : {activePledgeList.length} รายการ
+                      </p>
+                      <div className="flex flex-col text-slate-300 text-6xl my-10 items-center justify-center h-[35vh]">
+                        <HiOutlineDocumentMinus className="mb-2 text-8xl" />
+                        <p className="text-2xl">ไม่มีรายการ</p>
+                      </div>
+                    </div>               
                   </>
                 )}
 
@@ -261,7 +240,7 @@ const handleConfirmExtend = async (payload) => {
                   <p className="text-xl mt-3">ทำรายการ</p>
                   <div className="grid grid-cols-2 gap-3 mt-3">
                     <MenuCard
-                      onClick={() => navigate("/consignment")}
+                      onClick={() => navigate("/pledge")}
                       text="ทำรายการขายฝาก"
                     />
                     <MenuCard
@@ -283,9 +262,14 @@ const handleConfirmExtend = async (payload) => {
           </>
         }
       />
+      {/* ---------- TOS Modal ---------- */}
       <ModalTOS handleAgreement={handleAgreement} />
 
-      <ModalExtendConsignment selectedData={selectedData} handleConfirmExtend={handleConfirmExtend} />
+      {/* ---------- Extend Modal ---------- */}
+      <ModalExtendPledge
+        selectedData={selectedData}
+        handleConfirmExtend={handleConfirmExtend}
+      />
     </>
   );
 }

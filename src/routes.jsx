@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router";
 import InitialPage from "./pages/common/InitialPage";
-import Menu from "./pages/customer/CustomerMenu";
-import Consignment from "./pages/customer/Consignment";
+import Menu from "./pages/customer/Menu";
+import Pledge from "./pages/customer/Pledge";
 import History from "./pages/customer/History";
 import Interest from "./pages/customer/Interest";
 import Redeem from "./pages/customer/Redeem";
@@ -14,7 +14,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<InitialPage />} />
       <Route path="/menu" element={<Menu />} />
-      <Route path="/consignment" element={<Consignment />} />
+      <Route path="/pledge" element={<Pledge />} />
       <Route path="/history" element={<History />} />
       <Route path="/interest" element={<Interest />} />
       <Route path="/redeem" element={<Redeem />} />

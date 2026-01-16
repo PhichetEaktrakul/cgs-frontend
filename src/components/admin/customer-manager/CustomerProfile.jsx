@@ -52,7 +52,7 @@ export default function CustomerProfile({ selected ,prices}) {
         loanPercent: rates.loanPercentEdit,
         interestRate: rates.interestRateEdit,
       };
-      await apiAdmin.put("/customer/initial", body);
+      await apiAdmin.put("/api/customer/initial", body);
       toast.success("เเก้ไขข้อมูลสำเร็จ");
 
       // update originals

@@ -1,6 +1,7 @@
 import { FormatDateHyphen, FormatNumber } from "../../../utility/function";
+import GoldTypeToggle from "./GoldTypeToggle";
 
-export default function ConsignmentForm({
+export default function PledgeForm({
   tempValue,
   setTempValue,
   selected,
@@ -24,6 +25,7 @@ export default function ConsignmentForm({
           <p>{tempValue.numPay} เดือน</p>
         </div>
       </div>
+
       <div className="grid grid-cols-2 gap-4 text-center mb-3">
         <div>
           <p>วันที่เริ่มต้นสัญญา</p>
@@ -34,6 +36,7 @@ export default function ConsignmentForm({
           <p>{FormatDateHyphen(tempValue.endDate)}</p>
         </div>
       </div>
+
       <div className="grid grid-cols-2 gap-4 text-center mb-3">
         <div>
           <p>อัตราดอกเบี้ย</p>
@@ -47,31 +50,7 @@ export default function ConsignmentForm({
 
       <hr className="text-gray-400 my-3" />
 
-      <div className="text-center mb-4">
-        <p className="text-lg">ประเภททองที่ต้องการขายฝาก</p>
-        <div className="grid grid-cols-2 grid-rows-1">
-          <div>
-            <input
-              type="radio"
-              name="gold_percent"
-              value="1"
-              checked={selected === "1"}
-              onChange={(e) => setSelected(e.target.value)}
-            />{" "}
-            ทอง 99.99%
-          </div>
-          <div>
-            <input
-              type="radio"
-              name="gold_percent"
-              value="2"
-              checked={selected === "2"}
-              onChange={(e) => setSelected(e.target.value)}
-            />{" "}
-            ทอง 96.50%
-          </div>
-        </div>
-      </div>
+      <GoldTypeToggle selected={selected} setSelected={setSelected} />
 
       <form
         className="px-3"
@@ -87,11 +66,9 @@ export default function ConsignmentForm({
           document.getElementById("submit_modal").showModal();
         }}>
         <div className="mt-2">
-          <p>
-            จำนวนที่ต้องการขายฝาก <span className="text-red-600">*</span>
-          </p>
+          <p>จำนวนที่ต้องการขายฝาก <span className="text-red-600">*</span></p>
           <label
-            className={`input w-full mt-2 h-[35px] ${
+            className={`input border-0 border-b-1 w-full mt-2 h-[35px] ${
               error ? "border-red-600 border-1" : ""
             }`}>
             <input
@@ -109,7 +86,7 @@ export default function ConsignmentForm({
             <span className="label">{selected == "1" ? "กิโล" : "บาท"}</span>
           </label>
           {error == true ? (
-            <p className="text-red-600">กรุณากรอกจำนวนให้ถูกต้อง</p>
+            <p className="text-red-600 text-sm mt-1">กรุณากรอกจำนวนให้ถูกต้อง</p>
           ) : (
             <></>
           )}
@@ -117,7 +94,7 @@ export default function ConsignmentForm({
 
         <div className="mt-2">
           <p>คงเหลือทอง</p>
-          <label className="input w-full mt-2 h-[35px] bg-yellow-50">
+          <label className="input border-0 border-b-1 w-full mt-2 h-[35px] bg-blue-50">
             <input
               type="number"
               placeholder="0"
@@ -138,32 +115,32 @@ export default function ConsignmentForm({
 
         <div className="mt-2">
           <p>วงเงินที่ได้รับ</p>
-          <label className="input w-full mt-2 h-[35px] bg-yellow-50">
+          <label className="input border-0 border-b-1 w-full mt-2 h-[35px] bg-blue-50">
             <input
               type="text"
               value={FormatNumber(tempValue.loanAmount)}
               readOnly
             />
-            <span className="label">บาท</span>
+            <span className="label">THB</span>
           </label>
         </div>
 
         <div className="mt-2">
           <p>ดอกเบี้ยที่ต้องชำระ</p>
-          <label className="input w-full mt-2 h-[35px] bg-yellow-50">
+          <label className="input border-0 border-b-1 w-full mt-2 h-[35px] bg-blue-50">
             <input
               type="text"
               value={FormatNumber(tempValue.interestPay)}
               readOnly
             />
-            <span className="label">บาท</span>
+            <span className="label">THB</span>
           </label>
         </div>
 
-        <div className="py-3">
+        <div className="mt-3">
           <button
             type="submit"
-            className="cursor-pointer mt-1 p-1 text-[#081f55fc] bg-[#dabe96] w-full rounded-md">
+            className="cursor-pointer mt-1 p-1 text-white bg-[#2a53b3fc] w-full rounded-full">
             ยืนยัน
           </button>
         </div>

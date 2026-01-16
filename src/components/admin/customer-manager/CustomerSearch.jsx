@@ -15,7 +15,7 @@ export default function CustomerSearch({ setCustomers }) {
       return toast.error("กรุณากรอกรหัสลูกค้า");
     }
     apiAdmin
-      .get(`/dashboard/getcustomer/${search}`)
+      .get(`/api/dashboard/getcustomer/${search}`)
       .then((res) => setCustomers(res.data))
       .catch((err) => {
         console.error(err);
@@ -29,7 +29,7 @@ export default function CustomerSearch({ setCustomers }) {
   // Fetch All Customers
   const fetchAllCustomers = () => {
     apiAdmin
-      .get("/dashboard/getcustomer")
+      .get("/api/dashboard/getcustomer")
       .then((res) => setCustomers(res.data))
       .catch((err) => {
         console.error(err);

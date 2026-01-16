@@ -1,7 +1,7 @@
 import { FormatDate, FormatNumber, CalRemainDays } from "../../../utility/function";
+import { HiOutlineDocumentMinus } from "react-icons/hi2";
 
 export default function InterestCard({ intList, handleSelectInt }) {
-
   //----------------------------------------------------------------------------------------
   // Render Remaining Badge
   const RemainingDaysBadge = ({ dueDate }) => {
@@ -10,37 +10,42 @@ export default function InterestCard({ intList, handleSelectInt }) {
     let text, color;
     if (days < 0) {
       text = "เลยกำหนด";
-      color = "bg-gray-600";
+      color = "bg-gray-500";
     } else if (days <= 7) {
       text = `${days} วัน`;
-      color = "bg-red-600";
+      color = "bg-red-400";
     } else {
       text = `${days} วัน`;
-      color = "bg-gradient-to-br from-[#3b6fb3fc] to-[#244dacfc]";
+      color = "bg-cyan-500";
     }
-    return <div className={`badge text-white ${color}`}>{text}</div>;
+    return <div className={`badge text-white rounded-full ${color}`}>{text}</div>;
   };
   //----------------------------------------------------------------------------------------
 
   if (intList.length === 0) {
-    return <p className="text-gray-500 my-8 text-center">ไม่มีรายการที่สามารถต่อดอกได้</p>;
+    return (
+      <div className="h-[70vh] py-8 text-slate-300 flex flex-col items-center justify-center">
+        <HiOutlineDocumentMinus className="mb-2 text-8xl" />
+        <p className="text-2xl">ไม่มีรายการที่สามารถต่อดอกได้</p>
+      </div>
+    );
   }
 
   return (
     <>
-      <div className="h-[60vh] overflow-auto mb-8">
+      <div className="h-[79vh] overflow-auto mb-8">
         {intList.map((item) => (
           <div
             key={item.interest_id}
-            className="grid grid-cols-3 gap-x-1 gap-y-1 border-1 border-sky-900 rounded-lg my-3 p-3 text-md">
-            <div className="text-end pr-1">เลขที่ต่อดอก :</div>
-            <div>{item.interest_id}</div>
+            className="grid grid-cols-3 gap-x-1 gap-y-1 border border-[#17b686fc] rounded-2xl my-3 p-3 text-md">
+            <div className="text-end pr-1 font-bold">เลขที่สัญญา :</div>
+            <div className="font-bold">{item.pledge_id}</div>
             <div className="text-end">
               <RemainingDaysBadge dueDate={item.due_date} />
             </div>
 
-            <div className="text-end pr-1">เลขที่สัญญา :</div>
-            <div className="col-span-2">{item.pledge_id}</div>
+            <div className="text-end pr-1">เลขที่ต่อดอก :</div>
+            <div className="col-span-2">{item.interest_id}</div>
 
             <div className="text-end pr-1">น้ำหนัก :</div>
             <div className="col-span-2">
@@ -51,8 +56,12 @@ export default function InterestCard({ intList, handleSelectInt }) {
             <div className="col-span-2">
               {FormatNumber(
                 (item.old_loan_amount * item.old_interest_rate) / 100
-              )}{" "}
-              บาท
+              )}{" "}THB
+            </div>
+
+            <div className="text-end pr-1">ครบกำหนดชำระ :</div>
+            <div className="col-span-2">
+              {FormatDate(item.due_date)}
             </div>
 
             <div className="text-end pr-1">วันสิ้นสุดสัญญา :</div>
@@ -63,7 +72,7 @@ export default function InterestCard({ intList, handleSelectInt }) {
             <div className="col-span-3 text-end mt-2">
               <button
                 type="button"
-                className="cursor-pointer border border-transparent bg-[#dabe96] text-[#081f55fc] hover:border hover:border-[#dabe96] hover:bg-white hover:text-[#dabe96] py-0.5 px-6 rounded text-[16px]"
+                className="cursor-pointer border border-transparent bg-[#17b686fc] text-white hover:border hover:border-[#17b686fc] hover:bg-white hover:text-[#1bd19afc] py-0.5 px-6 rounded-full text-[16px]"
                 onClick={() => handleSelectInt(item)}>
                 ต่อดอก
               </button>

@@ -10,25 +10,21 @@ export default function ModalRedeem({ selectedData, postRedeem }) {
             ทำรายการไถ่ถอน : {selectedData?.pledge_id}
           </p>
 
-          <p className="py-4">
+          <p className="py-3">
             น้ำหนัก :{" "}
-            <span className="bg-amber-100 mx-3 px-2 py-1 rounded">
-              {selectedData?.weight}
-            </span>
+            <span className="bg-sky-100 mx-3 px-2 py-1 rounded">{selectedData?.weight}</span>
             {selectedData?.gold_type == "1" ? "กิโล" : "บาท"}
           </p>
 
-          <p className="py-4">
+          <p className="py-3">
             เงินต้นชำระ :{" "}
-            <span className="bg-amber-100 mx-3 px-2 py-1 rounded">
-              {FormatNumber(selectedData?.remain_loan_amount)}
-            </span>
-            บาท
+            <span className="bg-sky-100 mx-3 px-2 py-1 rounded">{FormatNumber(selectedData?.remain_loan_amount)}</span>
+            THB
           </p>
 
-          <p className="py-4">
+          <p className="py-3">
             ดอกเบี้ยชำระ :{" "}
-            <span className="bg-amber-100 mx-3 px-2 py-1 rounded">
+            <span className="bg-sky-100 mx-3 px-2 py-1 rounded">
               {selectedData?.remain_num_pay == 0
                 ? 0
                 : FormatNumber(
@@ -37,12 +33,12 @@ export default function ModalRedeem({ selectedData, postRedeem }) {
                       100
                   )}
             </span>
-            บาท
+            THB
           </p>
 
-          <p className="py-4">
+          <p className="py-3">
             ยอดที่ต้องชำระรวม :{" "}
-            <span className="bg-amber-100 mx-3 px-2 py-1 rounded">
+            <span className="bg-sky-100 mx-3 px-2 py-1 rounded">
               {selectedData?.remain_num_pay == 0
                 ? FormatNumber(selectedData?.remain_loan_amount)
                 : FormatNumber(
@@ -52,18 +48,28 @@ export default function ModalRedeem({ selectedData, postRedeem }) {
                         100
                   )}
             </span>
-            บาท
+            THB
           </p>
 
+          <hr className="my-2.5 text-gray-400" />
+
+          <div>
+            <p className="font-bold">ช่องทางการชำระเงิน :</p>
+            <div className="flex">
+              <input type="radio" className="mx-2" name="payment" id="" />
+              <label htmlFor="payment">e-Wallet</label>
+            </div>
+          </div>
+          
           <div className="modal-action">
             <form method="dialog">
-              <button className="btn mr-2 bg-transparent border-[#2a53b3fc] text-[#2a53b3fc]">
+              <button className="btn mr-2 bg-transparent border-[#2a53b3fc] text-[#2a53b3fc] rounded-full">
                 ยกเลิก
               </button>
               <button
                 type="button"
                 onClick={postRedeem}
-                className="btn ml-2 bg-[#2a53b3fc] text-white">
+                className="btn ml-2 px-5 bg-[#2a53b3fc] text-white rounded-full">
                 ยืนยัน
               </button>
             </form>

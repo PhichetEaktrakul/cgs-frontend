@@ -28,11 +28,11 @@ export default function ModalInterest({
 
   //----------------------------------------------------------------------------------------
   // Calculate Total Pay Amount
-  const totalPay =
+  const intPay =
     ((selectedData?.old_loan_amount || 0) *
       (selectedData?.old_interest_rate || 0)) /
-      100 +
-    (tempValue?.pay_loan || 0);
+    100;
+  const totalPay = intPay + (tempValue?.pay_loan || 0);
   //----------------------------------------------------------------------------------------
 
   return (
@@ -41,11 +41,11 @@ export default function ModalInterest({
         <div className="modal-box">
           <form onSubmit={handleSubmit}>
             <p className="font-bold text-lg mb-2">
-              รายการต่อดอกเลขที่ : {selectedData?.interest_id}
+              เลขที่สัญญา : {selectedData?.pledge_id}
             </p>
             <div>
               <div className="flex justify-between">
-                <p>เลขที่สัญญา : {selectedData?.pledge_id}</p>
+                <p>รายการต่อดอกเลขที่ : {selectedData?.interest_id}</p>
                 <p>
                   ต่อจาก :{" "}
                   {selectedData?.prev_interest_id
@@ -54,7 +54,7 @@ export default function ModalInterest({
                 </p>
               </div>
 
-              <hr className="my-2.5" />
+              <hr className="my-2.5 text-gray-400" />
 
               <p>
                 น้ำหนัก : {selectedData?.weight}{" "}
@@ -72,12 +72,12 @@ export default function ModalInterest({
               </div>
 
               {isReduce ? (
-                <div className="bg-[#fff1dc] px-2 rounded-xl grid grid-cols-[40%_30%_30%] leading-9">
+                <div className="bg-amber-50 px-2 rounded-xl grid grid-cols-[40%_30%_30%] leading-9">
                   <p>เงินต้นสัญญา : </p>
                   <p className="text-center">
                     {FormatNumber(selectedData?.old_loan_amount)}
                   </p>
-                  <p>บาท</p>
+                  <p className="text-center">THB</p>
 
                   <p>ตัดต้นจำนวน : </p>
                   <input
@@ -88,7 +88,7 @@ export default function ModalInterest({
                     }`}
                     onChange={handleLoanChange}
                   />
-                  <p>บาท</p>
+                  <p className="text-center">THB</p>
 
                   {error === "errNumber" && (
                     <p className="text-red-600 col-span-3 text-center">
@@ -107,32 +107,54 @@ export default function ModalInterest({
                       selectedData?.old_loan_amount - tempValue?.pay_loan
                     )}
                   </p>
-                  <p>บาท</p>
+                  <p className="text-center">THB</p>
                 </div>
               ) : (
                 <></>
               )}
 
-              <p className="my-4">
-                ยอดชำระ :
-                <span className="bg-amber-100 mx-3 px-2 py-1 rounded">
+              <div className="grid grid-cols-[30%_50%_20%] gap-2 p-2 mt-4">
+                <p>ชำระดอกเบี้ย :</p>
+                <p className="bg-sky-100 mx-3 px-2 py-1 rounded">
+                  {FormatNumber(intPay)}
+                </p>
+                <p>THB</p>
+
+                <p>ตัดต้น :</p>
+                <p className="bg-sky-100 mx-3 px-2 py-1 rounded">
+                  {FormatNumber(tempValue?.pay_loan || 0)}
+                </p>
+                <p>THB</p>
+
+                <p>ยอดรวม :</p>
+                <p className="bg-sky-100 mx-3 px-2 py-1 rounded">
                   {FormatNumber(totalPay)}
-                </span>
-                บาท
-              </p>
+                </p>
+                <p>THB</p>
+              </div>
+            </div>
+
+            <hr className="my-2.5 text-gray-400" />
+
+            <div>
+              <p className="font-bold">ช่องทางการชำระเงิน :</p>
+              <div className="flex">
+                <input type="radio" className="mx-2" name="payment" id="" />
+                <label htmlFor="payment">บัญชีเงินสด ME GOLD</label>
+              </div>
             </div>
 
             <div className="modal-action">
               <div>
                 <button
                   type="button"
-                  className="btn mr-2 bg-transparent border-[#2a53b3fc] text-[#2a53b3fc]"
+                  className="btn mr-2 bg-transparent border-[#2a53b3fc] text-[#2a53b3fc] rounded-full"
                   onClick={handleClose}>
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
-                  className="btn ml-2 bg-[#2a53b3fc] text-white">
+                  className="btn ml-2 bg-[#2a53b3fc] text-white rounded-full">
                   ยืนยัน
                 </button>
               </div>

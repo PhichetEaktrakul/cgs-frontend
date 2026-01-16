@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { apiCust } from "../../api/axiosInstance";
+import { apiCust, apiPrice } from "../../api/axiosInstance";
+import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import Header from "../../components/customer/Header";
-import ConsignmentBalance from "../../components/customer/consignment/ConsignmentBalance";
-import ConsignmentForm from "../../components/customer/consignment/ConsignmentForm";
-import ModalConsignment from "../../components/customer/consignment/ModalConsignment";
-import axios from "axios";
+import PledgeBalance from "../../components/customer/pledge/PledgeBalance";
+import PledgeForm from "../../components/customer/pledge/PledgeForm";
+import ModalPledge from "../../components/customer/pledge/ModalPledge";
 
-export default function Consignment() {
+export default function Pledge() {
   const customerId = localStorage.getItem("customerId");
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [selected, setSelected] = useState("1");
@@ -29,16 +30,16 @@ export default function Consignment() {
   });
 
   //----------------------------------------------------------------------------------------
-  // Set Customer Initial Data
-  const fetchConsignmentData = async (customerId) => {
+  // Set customer initial data
+  const fetchPledgeData = async (customerId) => {
     if (!customerId) return;
 
     try {
       const [initRes, goldRes, goldAssnRes, goldGcapRes] = await Promise.all([
-        apiCust.get(`/customer/initial/${customerId}`),
-        apiCust.get(`/customer/outer/${customerId}/gold`),
-        axios.get("http://localhost:8050/gold-assn/latest"),
-        axios.get("http://localhost:8050/gold-prices/latest"),
+        apiCust.get(`/api/customer/initial/${customerId}`),
+        apiCust.get(`/api/customer/outer/${customerId}/gold`),
+        apiPrice.get("/gprice/gold-assn/latest"),
+        apiPrice.get("/gprice/gold-gcap/latest"),
       ]);
 
       const setting = initRes.data;
@@ -58,8 +59,8 @@ export default function Consignment() {
         refPrice2: goldSell ?? 67015,
         loanPercent: setting.loan_percent,
         interestRate: setting.interest_rate,
-        startDate: dateToday.toISOString(),
-        endDate: dateEnd.toISOString(),        
+        startDate: dateToday.toLocaleString("sv-SE").replace(" ", "T"),
+        endDate: dateEnd.toLocaleString("sv-SE").replace(" ", "T"),        
         goldBalance99: Number(gold.balance99) || 0,
         goldBalance96: Number(gold.balance96) || 0,
         numPay: setting.num_pay,
@@ -71,8 +72,8 @@ export default function Consignment() {
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
-  // Create new consignment
-  const postConsignment = async (e) => {
+  // Create new pledge transaction
+  const postPledgeData = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -89,13 +90,12 @@ export default function Consignment() {
       transactionType: "ขายฝาก",
     };
     apiCust
-      .post("/pledge/create", transaction)
+      .post("/api/pledge/create", transaction)
       .then((res) => {
-        /* console.log("Response:", res.data); */
         toast.success(`ทำรายการเลขที่ ${res.data} สำเร็จ!`);
         setIsLoading(false);
         document.getElementById("submit_modal").close();
-        fetchConsignmentData(customerId);
+        navigate("/history");
       })
       .catch((err) => {
         toast.error("ทำรายการล้มเหลว!");
@@ -123,7 +123,7 @@ export default function Consignment() {
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
-  // Calculate Payable interest
+  // Calculate payable interest
   useEffect(() => {
     setTempValue((prev) => ({
       ...prev,
@@ -133,17 +133,17 @@ export default function Consignment() {
   //----------------------------------------------------------------------------------------
 
   useEffect(() => {
-    fetchConsignmentData(customerId);
+    fetchPledgeData(customerId);
   }, [customerId]);
 
   return (
     <Header
-      top={<ConsignmentBalance tempValue={tempValue} />}
+      top={<PledgeBalance tempValue={tempValue} />}
       bottom={
         <>
           <p className="text-center text-2xl">ขายฝาก</p>
           {/*------------Consignment Form For Customer------------*/}
-          <ConsignmentForm
+          <PledgeForm
             tempValue={tempValue}
             setTempValue={setTempValue}
             selected={selected}
@@ -153,9 +153,9 @@ export default function Consignment() {
           />
 
           {/*------------Open Transaction Consignment Modal------------*/}
-          <ModalConsignment
+          <ModalPledge
             tempValue={tempValue}
-            postConsignment={postConsignment}
+            postPledgeData={postPledgeData}
             isLoading={isLoading}
             selected={selected}
           />
