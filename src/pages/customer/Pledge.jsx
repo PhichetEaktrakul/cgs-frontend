@@ -38,8 +38,8 @@ export default function Pledge() {
       const [initRes, goldRes, goldAssnRes, goldGcapRes] = await Promise.all([
         apiCust.get(`/api/customer/initial/${customerId}`),
         apiCust.get(`/api/customer/outer/${customerId}/gold`),
-        apiPrice.get("/gprice/gold-assn/latest"),
-        apiPrice.get("/gprice/gold-gcap/latest"),
+        apiPrice.get("/api/gold-assn/latest"),
+        apiPrice.get("/api/gold-gcap/latest"),
       ]);
 
       const setting = initRes.data;

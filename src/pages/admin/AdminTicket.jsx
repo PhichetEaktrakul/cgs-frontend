@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import TicketConsignment from "./TicketConsignment";
-import TicketInterest from "./TicketInterest";
-import TicketRedeem from "./TicketRedeem";
-import TicketExtend from "./TicketExtend";
-import { apiAdmin } from "../../../api/axiosInstance";
+import { apiAdmin } from "../../api/axiosInstance";
+import TicketPledge from "../../components/admin/ticket-manager/TicketPledge";
+import TicketInterest from "../../components/admin/ticket-manager/TicketInterest";
+import TicketRedeem from "../../components/admin/ticket-manager/TicketRedeem";
+import TicketExtend from "../../components/admin/ticket-manager/TicketExtend";
 import toast from "react-hot-toast";
 
-export default function TicketManager({ refetchKey }) {
+export default function AdminTicket() {
   const [pledgeData, setPledgeData] = useState([]);
   const [interestData, setInterestData] = useState([]);
   const [redeemData, setRedeemData] = useState([]);
   const [extendData, setExtendData] = useState([]);
 
   //----------------------------------------------------------------------------------------
-  // Fetch helper
+  // Fetch Helper
   const fetchData = async (url, setter, errorMsg = "โหลดข้อมูลล้มเหลว") => {
     try {
       const { data } = await apiAdmin.get(url);
@@ -26,7 +26,7 @@ export default function TicketManager({ refetchKey }) {
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
-  // Update helper
+  // Update Helper
   const updateStatus = async (url, payload, successMsg, refetch) => {
     try {
       await apiAdmin.post(url, payload);
@@ -40,15 +40,15 @@ export default function TicketManager({ refetchKey }) {
   //----------------------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------------------
-  // Update Consignment Status
-  const handleConsignmentUpdate = (
+  // Update Pledge Status
+  const handlePledgeUpdate = (
     transactionId,
     pledgeId,
     customerId,
     goldType,
     weight,
     loanAmount,
-    method
+    method,
   ) => {
     const payload = {
       transactionId,
@@ -59,14 +59,12 @@ export default function TicketManager({ refetchKey }) {
       loanAmount,
       method,
     };
-    console.log("reach here");
-    console.log(payload);
     const msg =
       method === "approve"
         ? `อนุมัติรายการขายฝาก ID ${pledgeId} เเล้ว!`
         : `ไม่อนุมัติรายการขายฝาก ID ${pledgeId} เเล้ว!`;
     updateStatus("/api/pledge/approve/status", payload, msg, () =>
-      fetchData("/api/pledge/history/all", setPledgeData)
+      fetchData("/api/pledge/history/all", setPledgeData),
     );
   };
   //----------------------------------------------------------------------------------------
@@ -82,19 +80,16 @@ export default function TicketManager({ refetchKey }) {
     interestAmount,
     loanAmount,
     intRate,
-    method
+    method,
   ) => {
-console.log(dueDate, endDate);
-    // const formattedDueDate = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Bangkok", hour12: false }).format(new Date(dueDate));
-    // const formattedEndDate = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Bangkok", hour12: false }).format(new Date(endDate));
-     const newDue = new Date(dueDate).toLocaleString("sv-SE").replace(" ", "T")
-     const newEnd = new Date(endDate).toLocaleString("sv-SE").replace(" ", "T")
+    const newDue = new Date(dueDate).toLocaleString("sv-SE").replace(" ", "T");
+    const newEnd = new Date(endDate).toLocaleString("sv-SE").replace(" ", "T");
     const payload = {
       interestId,
       transactionId,
       pledgeId,
-      dueDate:newDue ,
-      endDate:newEnd ,
+      dueDate: newDue,
+      endDate: newEnd,
       interestAmount,
       loanAmount,
       intRate,
@@ -107,7 +102,7 @@ console.log(dueDate, endDate);
         ? `อนุมัติรายการต่อดอก ID ${interestId} เเล้ว!`
         : `ไม่อนุมัติรายการต่อดอก ID ${interestId} เเล้ว!`;
     updateStatus("/api/interest/approve/status", payload, msg, () =>
-      fetchData("/api/interest/history/all", setInterestData)
+      fetchData("/api/interest/history/all", setInterestData),
     );
   };
   //----------------------------------------------------------------------------------------
@@ -122,7 +117,7 @@ console.log(dueDate, endDate);
     prinPaid,
     weight,
     custId,
-    method
+    method,
   ) => {
     const payload = {
       transactionId,
@@ -142,6 +137,8 @@ console.log(dueDate, endDate);
   };
   //----------------------------------------------------------------------------------------
 
+  //----------------------------------------------------------------------------------------
+  // Update Extend Status
   const handleExtendUpdate = async ({
     pledgeId,
     transactionId,
@@ -155,7 +152,7 @@ console.log(dueDate, endDate);
     refPrice,
     weight,
     extend,
-    method, // "approve" or "reject"
+    method, 
   }) => {
     try {
       const payload = {
@@ -174,13 +171,10 @@ console.log(dueDate, endDate);
         method,
       };
 
-      console.log("Sending extension request:", payload);
-
       const msg = method === "approve" ? "อนุมัติเรียบร้อย" : "ปฏิเสธเรียบร้อย";
       updateStatus("/api/pledge/extend/approve/status", payload, msg, () =>
-        fetchData("/api/pledge/extend/all", setExtendData)
+        fetchData("/api/pledge/extend/all", setExtendData),
       );
-
     } catch (err) {
       console.error("Extension API failed:", err);
       toast.error("เกิดข้อผิดพลาดในการทำรายการ");
@@ -188,42 +182,38 @@ console.log(dueDate, endDate);
   };
 
   //----------------------------------------------------------------------------------------
-  // Refetch
   useEffect(() => {
-    if (refetchKey) {
-      fetchData("/api/pledge/history/all", setPledgeData);
-      fetchData("/api/interest/history/all", setInterestData);
-      fetchData("/api/redeem/history/all", setRedeemData);
-      fetchData("/api/pledge/extend/all", setExtendData);
-    }
-  }, [refetchKey]);
+    fetchData("/api/pledge/history/all", setPledgeData);
+    fetchData("/api/interest/history/all", setInterestData);
+    fetchData("/api/redeem/history/all", setRedeemData);
+    fetchData("/api/pledge/extend/all", setExtendData);
+  }, []);
   //----------------------------------------------------------------------------------------
 
   return (
     <>
-      <div>
-        {/* ------------------------- Consignment Ticket Section ------------------------- */}
-        <TicketConsignment
-          pledgeData={pledgeData}
-          handleConsignmentUpdate={handleConsignmentUpdate}
-        />
+      <div className="w-full h-full max-w-[1400px]">
+        <div className="px-3 py-5 mb-5 rounded-md bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2),0_4px_8px_rgba(0,0,0,0.12)]">
+          <TicketPledge
+            pledgeData={pledgeData}
+            handlePledgeUpdate={handlePledgeUpdate}
+          />
 
-        {/* ------------------------- Interest Ticket Section ------------------------- */}
-        <TicketInterest
-          interestData={interestData}
-          handleInterestUpdate={handleInterestUpdate}
-        />
+          <TicketInterest
+            interestData={interestData}
+            handleInterestUpdate={handleInterestUpdate}
+          />
 
-        {/* ------------------------- Redeem Ticket Section ------------------------- */}
-        <TicketRedeem
-          redeemData={redeemData}
-          handleRedeemUpdate={handleRedeemUpdate}
-        />
+          <TicketRedeem
+            redeemData={redeemData}
+            handleRedeemUpdate={handleRedeemUpdate}
+          />
 
-        <TicketExtend
-          extendData={extendData}
-          handleExtendUpdate={handleExtendUpdate}
-        />
+          <TicketExtend
+            extendData={extendData}
+            handleExtendUpdate={handleExtendUpdate}
+          />
+        </div>
       </div>
     </>
   );

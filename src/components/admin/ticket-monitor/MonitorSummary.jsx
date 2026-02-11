@@ -3,9 +3,15 @@ import { FormatNumber } from "../../../utility/function";
 export default function MonitorSummary({ title, data }) {
   return (
     <>
-      <fieldset className="fieldset border border-sky-900 shadow-md p-3 rounded-md">
+      <div className="shadow-[0_1px_3px_rgba(0,0,0,0.2),0_4px_8px_rgba(0,0,0,0.12)] px-3 py-5 rounded-md overflow-auto row-span-1 mb-3 bg-white">
         <legend className="fieldset-legend text-2xl text-sky-900">
-          {title}
+          <div className="flex items-center mb-4">
+            <div className="w-2 h-6 bg-sky-700 mr-3 rounded-sm" />
+            <h2 className="text-2xl font-semibold text-gray-700">
+               {title}
+            </h2>
+          </div>
+         
         </legend>
         <div className="grid grid-cols-7 grid-rows-3 gap-2 text-[16px]">
           <div className="col-span-2" />
@@ -31,7 +37,7 @@ export default function MonitorSummary({ title, data }) {
           </div>
           <div>บาท</div>
         </div>
-      </fieldset>
+      </div>
     </>
   );
 }

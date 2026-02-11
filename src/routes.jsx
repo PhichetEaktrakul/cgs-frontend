@@ -6,8 +6,12 @@ import History from "./pages/customer/History";
 import Interest from "./pages/customer/Interest";
 import Redeem from "./pages/customer/Redeem";
 import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
 import ProtectedLayout from "./components/common/ProtectedLayout";
+import AdminLayout from "./components/common/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminTicket from "./pages/admin/AdminTicket";
+import AdminUserManage from "./pages/admin/AdminUserManage";
+import AdminSetting from "./pages/admin/AdminSetting";
 
 const AppRoutes = () => {
   return (
@@ -20,7 +24,12 @@ const AppRoutes = () => {
       <Route path="/redeem" element={<Redeem />} />
       <Route path="/admin/auth" element={<AdminLogin />} />
       <Route element={<ProtectedLayout />}>
-        <Route path="/admin/dashboard/" element={<AdminDashboard />} />
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard/" element={<AdminDashboard />} />
+          <Route path="/admin/tickets/" element={<AdminTicket />} />
+          <Route path="/admin/users/" element={<AdminUserManage />} />
+          <Route path="/admin/settings/" element={<AdminSetting />} />
+        </Route>
       </Route>
     </Routes>
   );

@@ -46,8 +46,8 @@ export default function ModalExtendPledge({
 
         const goldApi =
           selectedData.gold_type === 1
-            ? "/gprice/gold-gcap/latest"
-            : "/gprice/gold-assn/latest";
+            ? "/api/gold-gcap/latest"
+            : "/api/gold-assn/latest";
 
         const goldResponse = await apiPrice.get(goldApi);
         const rawPrice =

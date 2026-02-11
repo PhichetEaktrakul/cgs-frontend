@@ -1,4 +1,10 @@
-import {FormatNumber, FormatDate, GoldTypeText, CalRemainDays, CalFunctions} from "../../../utility/function";
+import {
+  FormatNumber,
+  FormatDate,
+  GoldTypeText,
+  CalRemainDays,
+  CalFunctions,
+} from "../../../utility/function";
 import { RiExchangeBoxFill } from "react-icons/ri";
 
 export default function MonitorFocus({
@@ -8,70 +14,99 @@ export default function MonitorFocus({
   selectedTickets,
   setSelectedTickets,
 }) {
-  const columns = ["#", "เลขที่ Ticket", "เลขที่สัญญา", "วันครบกำหนดสัญญา", "วัน", "สถานะ", "ประเภททอง", "Loan+Int", "น้ำหนัก (BAHT)", "Gain/Loss", "หมายเหตุ", "Tools"];
-
-
+  const columns = [
+    "#",
+    "เลขที่ Ticket",
+    "เลขที่สัญญา",
+    "วันครบกำหนดสัญญา",
+    "วัน",
+    "สถานะ",
+    "ประเภททอง",
+    "Loan+Int",
+    "น้ำหนัก (BAHT)",
+    "Gain/Loss",
+    "หมายเหตุ",
+    "Tools",
+  ];
 
   return (
     <>
-      <fieldset className="fieldset bg-white shadow-md border border-sky-900 p-3 rounded-md mt-6 max-w-7xl">
-        <legend className="fieldset-legend text-2xl text-sky-900">Focus Ticket</legend>
+      <div className="shadow-[0_1px_3px_rgba(0,0,0,0.2),0_4px_8px_rgba(0,0,0,0.12)] px-3 py-5 rounded-md overflow-auto row-span-1 mb-3 bg-white">
+        <div className="flex items-center mb-4">
+          <div className="w-2 h-6 bg-sky-700 mr-3 rounded-sm" />
+          <h2 className="text-2xl font-semibold text-gray-700">Focus Ticket</h2>
+        </div>
 
         {/*------------Switch Ticket Order Status Button------------*/}
         <div className="flex gap-2">
-          <button className="px-3 py-1 bg-sky-700 text-white text-[16px] rounded cursor-pointer disabled:bg-gray-400 disabled:cursor-auto" onClick={() => switchOrderStatus("Long")} disabled={!selectedTickets.length}>Set Long</button>
-          <button className="px-3 py-1 bg-sky-700 text-white text-[16px] rounded cursor-pointer disabled:bg-gray-400 disabled:cursor-auto" onClick={() => switchOrderStatus("Shot")} disabled={!selectedTickets.length}>Set Shot</button>
+          <button
+            className="px-3 py-1 bg-sky-700 text-white text-base rounded-xl disabled:bg-gray-400 disabled:cursor-auto"
+            onClick={() => switchOrderStatus("Long")}
+            disabled={!selectedTickets.length}>
+            Set Long
+          </button>
+          <button
+            className="px-3 py-1 bg-sky-700 text-white text-base rounded-xl disabled:bg-gray-400 disabled:cursor-auto"
+            onClick={() => switchOrderStatus("Shot")}
+            disabled={!selectedTickets.length}>
+            Set Shot
+          </button>
         </div>
 
         {/*------------Focus Ticket Table------------*/}
         <div className="overflow-x-auto my-2">
-          <table className="table table-xs text-center">
-            <thead className="bg-sky-700 text-white">
-              <tr>{columns.map((col) => (<th key={col}>{col}</th>))}</tr>
+          <table className="w-full border-separate border-spacing-y-1 text-sm">
+            <thead className="sticky top-0 bg-sky-700 text-white">
+              <tr>
+                {columns.map((col) => (
+                  <th
+                    className="py-1  font-semibold first:rounded-l-lg last:rounded-r-lg"
+                    key={col}>
+                    {col}
+                  </th>
+                ))}
+              </tr>
             </thead>
-            <tbody>
+            <tbody className="[&>tr>td]:text-center [&>tr>td]:py-2">
               {data.length ? (
                 data.map((item) => {
-                  const { avgLoan, gainLoss, adjustedWeight } =
-                    CalFunctions(item, prices);
+                  const { avgLoan, gainLoss, adjustedWeight } = CalFunctions(
+                    item,
+                    prices,
+                  );
                   return (
                     <tr
                       key={item.pledge_id}
-                      className={`text-[14px]! ${
-                        item.gold_type === 1
-                          ? "bg-blue-100"
-                          : item.gold_type === 2
-                          ? "bg-yellow-100"
-                          : ""
-                      }`}>
+                      className={`hover:bg-red-50 transition
+                      ${item.gold_type === 1 ? "bg-blue-100" : item.gold_type === 2 ? "bg-yellow-100" : ""}
+                    `}>
                       <td>
                         <input
                           type="checkbox"
+                          className="checkbox checkbox-sm border-gray-500 bg-white"
                           checked={selectedTickets.includes(item.pledge_id)}
                           onChange={(e) =>
                             setSelectedTickets(
                               e.target.checked
                                 ? [...selectedTickets, item.pledge_id]
                                 : selectedTickets.filter(
-                                    (id) => id !== item.pledge_id
-                                  )
+                                    (id) => id !== item.pledge_id,
+                                  ),
                             )
                           }
                         />
                       </td>
                       <td>{item.transaction_id}</td>
                       <td>{item.pledge_id}</td>
-                      <td>{FormatDate(item.end_date)}</td>
+                      <td className="text-center py-1">
+                        {FormatDate(item.end_date)}
+                      </td>
                       <td>{CalRemainDays(item.end_date)}</td>
                       <td>
                         <div
-                          className={`badge text-white border-0 ${
-                            item.pledge_order === "Shot"
-                              ? "bg-red-500"
-                              : item.pledge_order === "Long"
-                              ? "bg-green-500"
-                              : ""
-                          }`}>
+                          className={`px-3 py-1 rounded-full text-xs font-semibold inline-block
+                            ${item.pledge_order === "Shot"? "bg-red-100 text-red-700": item.pledge_order === "Long"? "bg-green-100 text-green-700": ""}
+                         `}>
                           {item.pledge_order}
                         </div>
                       </td>
@@ -85,7 +120,7 @@ export default function MonitorFocus({
                         {FormatNumber(gainLoss)}
                       </td>
                       <td>{item.remark}</td>
-                      <td className="text-xl text-sky-600">
+                      <td className="text-xl text-sky-600 text-center">
                         <RiExchangeBoxFill />
                       </td>
                     </tr>
@@ -97,9 +132,7 @@ export default function MonitorFocus({
                 </tr>
               )}
             </tbody>
-            <tfoot className="bg-sky-700 text-white">
-              <tr>{columns.map((col) => (<th key={col}>{col}</th>))}</tr>
-            </tfoot>
+            <tfoot className="bg-sky-700 text-white"></tfoot>
           </table>
         </div>
 
@@ -115,7 +148,7 @@ export default function MonitorFocus({
             <button className="join-item btn btn-sm bg-white">100</button>
           </div>
         </div>
-      </fieldset>
+      </div>
     </>
   );
 }

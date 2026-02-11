@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const navigate = useNavigate();
 
-  // Admin(user) login
+  // Admin[user] login
   const login = async (username, password) => {
     try {
       const res = await apiCust.post(`/api/user/login`, {
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Admin(user) logout
+  // Admin[user] logout
   const logout = () => {
     setToken(null);
     setAdmin(null);
