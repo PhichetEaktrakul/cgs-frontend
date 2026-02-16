@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { apiCust } from "../../api/axiosInstance";
 import { useLocation } from "react-router";
 import Header from "../../components/customer/Header";
-import PledgeHistory from "../../components/customer/History/PledgeHistory";
-import InterestHistory from "../../components/customer/History/InterestHistory";
-import RedeemHistory from "../../components/customer/History/RedeemHistory";
+import PledgeHistory from "../../components/customer/history/PledgeHistory";
+import InterestHistory from "../../components/customer/history/InterestHistory";
+import RedeemHistory from "../../components/customer/history/RedeemHistory";
 
 export default function History() {
   const location = useLocation();
